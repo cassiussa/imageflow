@@ -283,13 +283,13 @@ impl RequestPerf {
 }
 
 struct RequestHostname {
-    get_hostname: String
+    get_hostnm: String
 }
 
 impl RequestHostname {
     fn short(&self) -> String {
         format!("hostname {:.2}",
-                assert!(get_hostname().is_some());)
+                self.get_hostnm as assert!(get_hostname().is_some()))
     }
 }
 
