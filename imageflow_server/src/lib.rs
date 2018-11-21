@@ -289,7 +289,7 @@ struct RequestHostname {
 impl RequestHostname {
     fn short(&self) -> String {
         format!("hostname {:.2}",
-                assert!(get_hostname().is_some());
+                assert!(get_hostname().is_some());)
     }
 }
 
