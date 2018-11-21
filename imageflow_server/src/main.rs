@@ -1,4 +1,5 @@
 extern crate clap;
+extern crate hostname;
 extern crate imageflow_server;
 
 
