@@ -8,6 +8,7 @@ extern crate bincode;
 extern crate mount;
 
 use staticfile::Static;
+use hostname::get_hostname;
 
 
 #[macro_use] extern crate serde_derive;
@@ -281,9 +282,20 @@ impl RequestPerf {
     }
 }
 
+struct RequestHostname {
+    get_hostname: String
+}
+
+impl RequestHostname {
+    fn short(&self) -> String {
+        format!("hostname {:.2}",
+                assert!(get_hostname().is_some());
+    }
+}
+
 
 fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
-                        -> std::result::Result<(stateless::BuildOutput, RequestPerf), ServerError>
+                        -> std::result::Result<(stateless::BuildOutput, RequestPerf,RequestHostname), ServerError>
     where F: Fn(s::ImageInfo) -> std::result::Result<s::Framewise, ServerError>,
           F2: Fn() -> std::result::Result<(Vec<u8>, AcquirePerf), ServerError>,
 {
