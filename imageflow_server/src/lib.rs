@@ -271,30 +271,21 @@ struct RequestPerf {
     acquire: AcquirePerf,
     get_image_info_ns: u64,
     execute_ns: u64,
+    get_the_hostname: String,
 }
 
 impl RequestPerf {
     fn short(&self) -> String {
-        format!("execute {:.2}ms getinfo {:.2}ms fetch-through: {:.2}ms",
+        format!("execute {:.2}ms getinfo {:.2}ms fetch-through: {:.2}ms hostname: {:.2}",
                 self.execute_ns as f64 / 1_000_000.0f64
                 , self.get_image_info_ns as f64 / 1_000_000.0f64,
-                (self.acquire.total() as f64) / 1_000_000.0f64)
+                (self.acquire.total() as f64) / 1_000_000.0f64,
+                self.get_the_hostname)
     }
 }
-
-struct RequestHostname {
-    get_hostnm: String
-}
-
-impl RequestHostname {
-    fn short(&self) -> String {
-        format!("hostname {:.2}", assert!(get_hostname().is_some()))
-    }
-}
-
 
 fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
-                        -> std::result::Result<(stateless::BuildOutput, RequestPerf,RequestHostname), ServerError>
+                        -> std::result::Result<(stateless::BuildOutput, RequestPerf), ServerError>
     where F: Fn(s::ImageInfo) -> std::result::Result<s::Framewise, ServerError>,
           F2: Fn() -> std::result::Result<(Vec<u8>, AcquirePerf), ServerError>,
 {
@@ -318,6 +309,7 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
             acquire: acquire_perf,
             get_image_info_ns: start_execute - start_get_info,
             execute_ns: end_execute - start_execute,
+            get_the_hostname: assert!(get_hostname().is_some()),
         }))
 }
 header! { (XImageflowPerf, "X-Imageflow-Perf") => [String] }
