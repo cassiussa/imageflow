@@ -273,7 +273,9 @@ struct RequestPerf {
     acquire: AcquirePerf,
     get_image_info_ns: u64,
     execute_ns: u64,
-    get_the_hostname: hostname,
+    //////////////////
+    get_the_hostname: Option<String>,
+    //////////////////
 }
 
 impl RequestPerf {
@@ -282,7 +284,9 @@ impl RequestPerf {
                 self.execute_ns as f64 / 1_000_000.0f64,
                 self.get_image_info_ns as f64 / 1_000_000.0f64,
                 (self.acquire.total() as f64) / 1_000_000.0f64,
-                (self.get_the_hostname as hostname))
+                //////////////////
+                (self.get_the_hostname as string))
+                //////////////////
     }
 }
 
@@ -298,7 +302,7 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
     let start_execute = precise_time_ns();
 
     ///////////////////////
-    let the_hostname: hostname = get_hostname();
+    let the_hostname: Option<String> = get_hostname();
     ///////////////////////
     
     let result: stateless::BuildSuccess = client.build(stateless::BuildRequest {
