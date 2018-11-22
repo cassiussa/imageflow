@@ -296,6 +296,8 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
     let start_get_info = precise_time_ns();
     let info = client.get_image_info(&original_bytes)?;
     let start_execute = precise_time_ns();
+    
+    let the_hostname = get_hostname();
 
     let result: stateless::BuildSuccess = client.build(stateless::BuildRequest {
         framewise: framewise_generator(info)?,
@@ -312,7 +314,7 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
             get_image_info_ns: start_execute - start_get_info,
             execute_ns: end_execute - start_execute,
             //get_the_hostname: assert!(get_hostname().is_some()),
-            get_the_hostname: get_hostname().as_str().unwrap(),
+            get_the_hostname: the_hostname.as_str().unwrap(),
         }))
 }
 header! { (XImageflowPerf, "X-Imageflow-Perf") => [String] }
