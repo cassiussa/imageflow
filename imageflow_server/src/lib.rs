@@ -282,13 +282,11 @@ struct RequestPerf {
 
 impl RequestPerf {
     fn short(&self) -> String {
-        format!("execute {:.2}ms getinfo {:.2}ms fetch-through: {:.2}ms hostname: {:.2}",
+        format!("hostname: {:.2} execute {:.2}ms getinfo {:.2}ms fetch-through: {:.2}ms",
+                self.get_the_hostname,
                 self.execute_ns as f64 / 1_000_000.0f64,
                 self.get_image_info_ns as f64 / 1_000_000.0f64,
-                (self.acquire.total() as f64) / 1_000_000.0f64,
-                //////////////////
-                self.get_the_hostname)
-                //////////////////
+                (self.acquire.total() as f64) / 1_000_000.0f64)
     }
 }
 
