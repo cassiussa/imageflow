@@ -285,7 +285,7 @@ impl RequestPerf {
                 self.get_image_info_ns as f64 / 1_000_000.0f64,
                 (self.acquire.total() as f64) / 1_000_000.0f64,
                 //////////////////
-                (self.get_the_hostname as string))
+                (self.get_the_hostname as String))
                 //////////////////
     }
 }
