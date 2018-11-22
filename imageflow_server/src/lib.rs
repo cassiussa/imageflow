@@ -7,6 +7,8 @@ extern crate logger;
 extern crate bincode;
 extern crate mount;
 
+extern crate hostname;
+
 use staticfile::Static;
 use hostname::get_hostname;
 
@@ -277,10 +279,10 @@ struct RequestPerf {
 impl RequestPerf {
     fn short(&self) -> String {
         format!("execute {:.2}ms getinfo {:.2}ms fetch-through: {:.2}ms hostname: {:.2}",
-                self.execute_ns as f64 / 1_000_000.0f64
-                , self.get_image_info_ns as f64 / 1_000_000.0f64,
+                self.execute_ns as f64 / 1_000_000.0f64,
+                self.get_image_info_ns as f64 / 1_000_000.0f64,
                 (self.acquire.total() as f64) / 1_000_000.0f64,
-                self.get_the_hostname)
+                (self.get_the_hostname as String))
     }
 }
 
