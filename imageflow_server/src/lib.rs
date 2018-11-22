@@ -314,7 +314,7 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
             get_image_info_ns: start_execute - start_get_info,
             execute_ns: end_execute - start_execute,
             //get_the_hostname: assert!(get_hostname().is_some()),
-            get_the_hostname: the_hostname.as_str().unwrap(),
+            get_the_hostname: the_hostname,
         }))
 }
 header! { (XImageflowPerf, "X-Imageflow-Perf") => [String] }
