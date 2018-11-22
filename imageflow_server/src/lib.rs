@@ -7,10 +7,12 @@ extern crate logger;
 extern crate bincode;
 extern crate mount;
 
-extern crate hostname;
+//extern crate hostname;
+extern crate sys_info;
+use sys_info::hostname;
 
 use staticfile::Static;
-use hostname::get_hostname;
+//use hostname::get_hostname;
 
 
 #[macro_use] extern crate serde_derive;
@@ -274,7 +276,7 @@ struct RequestPerf {
     get_image_info_ns: u64,
     execute_ns: u64,
     //////////////////
-    get_the_hostname: Option<String>,
+    get_the_hostname: String,
     //////////////////
 }
 
@@ -285,7 +287,9 @@ impl RequestPerf {
                 self.get_image_info_ns as f64 / 1_000_000.0f64,
                 (self.acquire.total() as f64) / 1_000_000.0f64,
                 //////////////////
-                (self.get_the_hostname as String))
+                ///self.get_the_hostname as Some(String::from(the_hostname)))
+                self.get_the_hostname)
+                //(self.get_the_hostname as String))
                 //////////////////
     }
 }
@@ -300,9 +304,8 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
     let start_get_info = precise_time_ns();
     let info = client.get_image_info(&original_bytes)?;
     let start_execute = precise_time_ns();
-
     ///////////////////////
-    let the_hostname: Option<String> = get_hostname();
+    let the_hostname = get_hostname();
     ///////////////////////
     
     let result: stateless::BuildSuccess = client.build(stateless::BuildRequest {
@@ -320,7 +323,9 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
             get_image_info_ns: start_execute - start_get_info,
             execute_ns: end_execute - start_execute,
             //get_the_hostname: assert!(get_hostname().is_some()),
-            get_the_hostname: the_hostname,
+            ///////////////////////
+            get_the_hostname: hostname(),
+            ///////////////////////
         }))
 }
 header! { (XImageflowPerf, "X-Imageflow-Perf") => [String] }
