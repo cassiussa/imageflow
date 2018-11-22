@@ -322,7 +322,7 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
             execute_ns: end_execute - start_execute,
             // get_the_hostname: assert!(get_hostname().is_some()),
             ///////////////////////
-            get_the_hostname: hostname(),
+            get_the_hostname: hostname() as String,
             ///////////////////////
         }))
 }
