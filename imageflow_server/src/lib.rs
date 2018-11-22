@@ -292,6 +292,12 @@ impl RequestPerf {
     }
 }
 
+// pub fn test_hostname() {
+//     let host = hostname().unwrap();
+//     assert!(host.len() > 0);
+//     println!("hostname(): {}", host);
+// }
+
 fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
                         -> std::result::Result<(stateless::BuildOutput, RequestPerf), ServerError>
     where F: Fn(s::ImageInfo) -> std::result::Result<s::Framewise, ServerError>,
@@ -322,7 +328,7 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
             execute_ns: end_execute - start_execute,
             // get_the_hostname: assert!(get_hostname().is_some()),
             ///////////////////////
-            get_the_hostname: hostname() as String,
+            get_the_hostname: hostname().unwrap(),
             ///////////////////////
         }))
 }
