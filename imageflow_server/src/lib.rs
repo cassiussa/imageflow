@@ -297,7 +297,7 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
     let info = client.get_image_info(&original_bytes)?;
     let start_execute = precise_time_ns();
     
-    let the_hostname = get_hostname();
+    let the_hostname: Option<String> = get_hostname();
 
     let result: stateless::BuildSuccess = client.build(stateless::BuildRequest {
         framewise: framewise_generator(info)?,
