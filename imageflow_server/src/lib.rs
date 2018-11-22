@@ -282,7 +282,7 @@ impl RequestPerf {
                 self.execute_ns as f64 / 1_000_000.0f64,
                 self.get_image_info_ns as f64 / 1_000_000.0f64,
                 (self.acquire.total() as f64) / 1_000_000.0f64,
-                (self.get_the_hostname as String))
+                (self.get_the_hostname as get_hostname))
     }
 }
 
@@ -296,9 +296,11 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
     let start_get_info = precise_time_ns();
     let info = client.get_image_info(&original_bytes)?;
     let start_execute = precise_time_ns();
-    
-    let the_hostname: Option = get_hostname();
 
+    ///////////////////////
+    let the_hostname: hostname::get_hostname = get_hostname();
+    ///////////////////////
+    
     let result: stateless::BuildSuccess = client.build(stateless::BuildRequest {
         framewise: framewise_generator(info)?,
         inputs: vec![stateless::BuildInput {
