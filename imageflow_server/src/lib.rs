@@ -275,34 +275,32 @@ struct RequestPerf {
     acquire: AcquirePerf,
     get_image_info_ns: u64,
     execute_ns: u64,
-    //////////////////
-    get_the_hostname: String,
-    //////////////////
 }
 
 impl RequestPerf {
     fn short(&self) -> String {
-    let host = hostname().unwrap();
-    assert!(host.len() > 0);
-    get_the_hostname = host
-        format!("hostname: {:?} execute {:.2}ms getinfo {:.2}ms fetch-through: {:.2}ms",
-                self.get_the_hostname,
+        format!("execute {:.2}ms getinfo {:.2}ms fetch-through: {:.2}ms",
                 self.execute_ns as f64 / 1_000_000.0f64,
                 self.get_image_info_ns as f64 / 1_000_000.0f64,
                 (self.acquire.total() as f64) / 1_000_000.0f64)
     }
 }
-////////////////////////////
-fn TestHostname() {
-    let host = hostname().unwrap();
-    assert!(host.len() > 0);
-    get_the_hostname = host
-    // println!("hostname(): {}", host);
+
+struct RequestHost {
+    the_hostname: String,
 }
-////////////////////////////
+
+impl RequestHost {
+    fn short(&self) -> String {
+        let host = hostname().unwrap();
+        assert!(host.len() > 0);
+        format!("origin-server: {:?}", self.host)
+    }
+}
+
 
 fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
-                        -> std::result::Result<(stateless::BuildOutput, RequestPerf), ServerError>
+                        -> std::result::Result<(stateless::BuildOutput, RequestPerf, RequestHost), ServerError>
     where F: Fn(s::ImageInfo) -> std::result::Result<s::Framewise, ServerError>,
           F2: Fn() -> std::result::Result<(Vec<u8>, AcquirePerf), ServerError>,
 {
@@ -326,13 +324,10 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
             acquire: acquire_perf,
             get_image_info_ns: start_execute - start_get_info,
             execute_ns: end_execute - start_execute,
-            // get_the_hostname: assert!(get_hostname().is_some()),
-            ///////////////////////
-            get_the_hostname: hostname().unwrap(),
-            ///////////////////////
         }))
 }
 header! { (XImageflowPerf, "X-Imageflow-Perf") => [String] }
+header! { (OriginServer, "origin-server") => [String] }
 
 fn respond_using<F, F2, A>(debug_info: &A, bytes_provider: F2, framewise_generator: F)
                         -> IronResult<Response>
@@ -348,7 +343,8 @@ fn respond_using<F, F2, A>(debug_info: &A, bytes_provider: F2, framewise_generat
                 .unwrap_or_else(|_| Mime::from_str("application/octet-stream").unwrap());
             let mut res = Response::with((mime, status::Ok, output.bytes));
 
-            res.headers.set(XImageflowPerf(perf.short()));
+            res.headers.set(
+                (perf.short()));
             Ok(res)
         }
         Err(e) => respond_with_server_error(&debug_info, e, true)
