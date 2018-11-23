@@ -282,6 +282,9 @@ struct RequestPerf {
 
 impl RequestPerf {
     fn short(&self) -> String {
+    let host = hostname().unwrap();
+    assert!(host.len() > 0);
+    get_the_hostname = host
         format!("hostname: {:?} execute {:.2}ms getinfo {:.2}ms fetch-through: {:.2}ms",
                 self.get_the_hostname,
                 self.execute_ns as f64 / 1_000_000.0f64,
