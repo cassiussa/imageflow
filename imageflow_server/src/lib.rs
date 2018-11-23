@@ -287,14 +287,14 @@ impl RequestPerf {
 }
 
 struct RequestHost {
-    the_hostname: String,
+    host: String,
 }
 
 impl RequestHost {
     fn short(&self) -> String {
         let host = hostname().unwrap();
         assert!(host.len() > 0);
-        format!("origin-server: {:?}", self.host)
+        format!("origin-server: {:?}", host)
     }
 }
 
