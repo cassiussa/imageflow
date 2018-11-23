@@ -149,6 +149,7 @@ struct FetchedResponse {
     bytes: Vec<u8>,
     perf: AcquirePerf,
     content_type: hyper::header::ContentType,
+    hostnm: Acquirehost,
 }
 
 fn fetch_bytes(url: &str, config: Option<FetchConfig>) -> std::result::Result<FetchedResponse, ServerError> {
@@ -160,7 +161,8 @@ fn fetch_bytes(url: &str, config: Option<FetchConfig>) -> std::result::Result<Fe
         Ok(r) => Ok(FetchedResponse{
             bytes: r.bytes,
             content_type: r.content_type,
-            perf: AcquirePerf { fetch_ns: downloaded - start, ..Default::default() }
+            perf: AcquirePerf { fetch_ns: downloaded - start, ..Default::default() },
+            hostnm: r.hostnm,
         }),
         Err(e) => Err(error_upstream(e.into()))
     }
@@ -204,7 +206,7 @@ fn fetch_bytes_using_cache_by_url(cache: &CacheFolder, url: &str) -> std::result
         }
     } else {
         let result = fetch_bytes(url, None);
-        if let Ok(FetchedResponse { bytes, perf, .. }) = result {
+        if let Ok(FetchedResponse { bytes, perf, hostnm, .. }) = result {
             let start = precise_time_ns();
             match entry.write(&bytes) {
                 Ok(()) => {
@@ -326,7 +328,7 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
             execute_ns: end_execute - start_execute,
         },
         RequestHost {
-            host: host,
+            host: hostname,
         }))
 }
 header! { (XImageflowPerf, "X-Imageflow-Perf") => [String] }
@@ -340,14 +342,14 @@ fn respond_using<F, F2, A>(debug_info: &A, bytes_provider: F2, framewise_generat
 {
     //TODO: support process=, cache=, etc? pass-through by default?
     match execute_using(bytes_provider, framewise_generator) {
-        Ok((output, perf)) => {
+        Ok((output, perf, hostnm)) => {
             let mime = output.mime_type
                 .parse::<Mime>()
                 .unwrap_or_else(|_| Mime::from_str("application/octet-stream").unwrap());
             let mut res = Response::with((mime, status::Ok, output.bytes));
 
             res.headers.set(
-                (perf.short()));
+                (perf.short()),hostnm.short);
             Ok(res)
         }
         Err(e) => respond_with_server_error(&debug_info, e, true)
@@ -393,7 +395,7 @@ fn ir4_http_respond_uncached<F>(_shared: &SharedData, url: &str, framewise_gener
 {
     respond_using(&url, || {
         fetch_bytes( url, None).map_err(error_upstream).map(|r|
-            (r.bytes, r.perf))
+            (r.bytes, r.perf, r.hostnm))
     }, framewise_generator)
 }
 
