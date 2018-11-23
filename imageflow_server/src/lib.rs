@@ -294,7 +294,7 @@ impl RequestHost {
     fn short(&self) -> String {
         let host = hostname().unwrap();
         assert!(host.len() > 0);
-        format!("origin-server: {:?}", host)
+        format!("origin-server: {:?}", self.host)
     }
 }
 
@@ -324,6 +324,9 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
             acquire: acquire_perf,
             get_image_info_ns: start_execute - start_get_info,
             execute_ns: end_execute - start_execute,
+        },
+        RequestHost {
+            host: host,
         }))
 }
 header! { (XImageflowPerf, "X-Imageflow-Perf") => [String] }
