@@ -149,7 +149,7 @@ struct FetchedResponse {
     bytes: Vec<u8>,
     perf: AcquirePerf,
     content_type: hyper::header::ContentType,
-    hostnm: Acquirehost,
+    hostnm: String,
 }
 
 fn fetch_bytes(url: &str, config: Option<FetchConfig>) -> std::result::Result<FetchedResponse, ServerError> {
@@ -161,8 +161,7 @@ fn fetch_bytes(url: &str, config: Option<FetchConfig>) -> std::result::Result<Fe
         Ok(r) => Ok(FetchedResponse{
             bytes: r.bytes,
             content_type: r.content_type,
-            perf: AcquirePerf { fetch_ns: downloaded - start, ..Default::default() },
-            hostnm: r.hostnm,
+            perf: AcquirePerf { fetch_ns: downloaded - start, ..Default::default() }
         }),
         Err(e) => Err(error_upstream(e.into()))
     }
@@ -289,14 +288,15 @@ impl RequestPerf {
 }
 
 struct RequestHost {
-    host: String,
+    host_name: String,
 }
 
 impl RequestHost {
     fn short(&self) -> String {
         let host = hostname().unwrap();
         assert!(host.len() > 0);
-        format!("origin-server: {:?}", self.host)
+        host_name = host
+        format!("origin-server: {:?}", self.host_name)
     }
 }
 
@@ -311,6 +311,10 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
     let start_get_info = precise_time_ns();
     let info = client.get_image_info(&original_bytes)?;
     let start_execute = precise_time_ns();
+    
+    let host = hostname().unwrap();
+    assert!(host.len() > 0);
+    host_nm = host
     
     let result: stateless::BuildSuccess = client.build(stateless::BuildRequest {
         framewise: framewise_generator(info)?,
@@ -328,7 +332,7 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
             execute_ns: end_execute - start_execute,
         },
         RequestHost {
-            host: hostname,
+            host_name: host_nm,
         }))
 }
 header! { (XImageflowPerf, "X-Imageflow-Perf") => [String] }
@@ -348,8 +352,7 @@ fn respond_using<F, F2, A>(debug_info: &A, bytes_provider: F2, framewise_generat
                 .unwrap_or_else(|_| Mime::from_str("application/octet-stream").unwrap());
             let mut res = Response::with((mime, status::Ok, output.bytes));
 
-            res.headers.set(
-                (perf.short()),hostnm.short);
+            res.headers.set(perf.short(),hostnm.short);
             Ok(res)
         }
         Err(e) => respond_with_server_error(&debug_info, e, true)
