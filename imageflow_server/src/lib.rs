@@ -282,19 +282,21 @@ struct RequestPerf {
 
 impl RequestPerf {
     fn short(&self) -> String {
-        format!("hostname: {} execute {:.2}ms getinfo {:.2}ms fetch-through: {:.2}ms",
+        format!("hostname: {:?} execute {:.2}ms getinfo {:.2}ms fetch-through: {:.2}ms",
                 self.get_the_hostname,
                 self.execute_ns as f64 / 1_000_000.0f64,
                 self.get_image_info_ns as f64 / 1_000_000.0f64,
                 (self.acquire.total() as f64) / 1_000_000.0f64)
     }
 }
-
-// pub fn test_hostname() {
-//     let host = hostname().unwrap();
-//     assert!(host.len() > 0);
-//     println!("hostname(): {}", host);
-// }
+////////////////////////////
+fn TestHostname() {
+    let host = hostname().unwrap();
+    assert!(host.len() > 0);
+    get_the_hostname = host
+    // println!("hostname(): {}", host);
+}
+////////////////////////////
 
 fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
                         -> std::result::Result<(stateless::BuildOutput, RequestPerf), ServerError>
@@ -306,9 +308,6 @@ fn execute_using<F, F2>(bytes_provider: F2, framewise_generator: F)
     let start_get_info = precise_time_ns();
     let info = client.get_image_info(&original_bytes)?;
     let start_execute = precise_time_ns();
-    ///////////////////////
-    // let the_hostname = get_hostname();
-    ///////////////////////
     
     let result: stateless::BuildSuccess = client.build(stateless::BuildRequest {
         framewise: framewise_generator(info)?,
