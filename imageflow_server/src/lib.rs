@@ -352,7 +352,8 @@ fn respond_using<F, F2, A>(debug_info: &A, bytes_provider: F2, framewise_generat
                 .unwrap_or_else(|_| Mime::from_str("application/octet-stream").unwrap());
             let mut res = Response::with((mime, status::Ok, output.bytes));
 
-            res.headers.set(perf.short(),hostnm.short);
+            res.headers.set(perf.short());
+            res.headers.set(hostnm.short());
             Ok(res)
         }
         Err(e) => respond_with_server_error(&debug_info, e, true)
@@ -398,7 +399,7 @@ fn ir4_http_respond_uncached<F>(_shared: &SharedData, url: &str, framewise_gener
 {
     respond_using(&url, || {
         fetch_bytes( url, None).map_err(error_upstream).map(|r|
-            (r.bytes, r.perf, r.hostnm))
+            (r.bytes, r.perf))
     }, framewise_generator)
 }
 
